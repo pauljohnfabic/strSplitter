@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Delimiter Inserter</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 0 16px; }
+  label { display: block; margin-top: 16px; font-weight: bold; }
+  textarea, input { width: 100%; box-sizing: border-box; padding: 8px; margin-top: 4px; font-family: inherit; font-size: 14px; }
+  textarea { resize: vertical; }
+  button { margin-top: 16px; padding: 10px 20px; font-size: 14px; cursor: pointer; }
+  #charCount { font-size: 12px; color: #666; }
+</style>
+</head>
+<body>
+  <h2>Delimiter Inserter</h2>
+
+  <label for="txt">Text (max 5000 characters)</label>
+  <textarea id="txt" rows="6" maxlength="5000" oninput="updateCount()"></textarea>
+  <div id="charCount">0 / 5000</div>
+
+  <label for="delim">Delimiter</label>
+  <input id="delim" type="text" placeholder="e.g. -">
+
+  <label for="perN">Characters per delimiter</label>
+  <input id="perN" type="number" min="1" placeholder="e.g. 4">
+
+  <button onclick="generate()">Generate</button>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px;">
+    <label for="out" style="margin:0;">Result</label>
+    <button id="copyBtn" onclick="copyResult()" title="Copy" style="margin:0; padding:4px 8px; display:flex; align-items:center; gap:4px;">
+      <svg id="copyIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span id="copyLabel">Copy</span>
+    </button>
+  </div>
+  <textarea id="out" rows="6" readonly></textarea>
+
+<script>
+function updateCount() {
+  const len = document.getElementById('txt').value.length;
+  document.getElementById('charCount').textContent = len + ' / 5000';
+}
+
+function generate() {
+  const txt = document.getElementById('txt').value.slice(0, 5000);
+  const delim = document.getElementById('delim').value;
+  const n = parseInt(document.getElementById('perN').value, 10);
+  const out = document.getElementById('out');
+
+  if (!n || n <= 0) {
+    out.value = 'Enter a valid positive number for characters per delimiter.';
+    return;
+  }
+
+  const parts = [];
+  for (let i = 0; i < txt.length; i += n) {
+    parts.push(txt.substring(i, i + n));
+  }
+  out.value = parts.join(delim);
+}
+
+function copyResult() {
+  const out = document.getElementById('out');
+  if (!out.value) return;
+  navigator.clipboard.writeText(out.value).then(() => {
+    const icon = document.getElementById('copyIcon');
+    const label = document.getElementById('copyLabel');
+    icon.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+    label.textContent = 'Copied';
+    setTimeout(() => {
+      icon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
+      label.textContent = 'Copy';
+    }, 1500);
+  });
+}
+</script>
+</body>
+</html>
